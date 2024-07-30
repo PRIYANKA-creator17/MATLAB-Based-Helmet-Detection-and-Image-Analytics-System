@@ -1,9 +1,3 @@
-**"MATLAB-Based Helmet Detection & Image Analytics System"**
-
-Here's a brief description for the project:
-
----
-
 # MATLAB-Based Helmet Detection and Image Analytics System
 
 This project involves the development of a system using MATLAB that detects whether individuals in an image are wearing helmets. It also performs real-time analytics on the detected images to analyze and report on the presence or absence of helmets.

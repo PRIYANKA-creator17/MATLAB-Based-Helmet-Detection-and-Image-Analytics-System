@@ -1,0 +1,53 @@
+
+clear; close all; clc; rng('default');
+load gTruth
+
+load('trainedYOLOv2Detector');
+
+
+videoFReader = vision.VideoFileReader(gTruth.DataSource.Source);
+videoPlayer = vision.DeployableVideoPlayer;
+doRecording = false;
+
+numFrames = 10;
+cntFrames = 1;
+cmaps(1,:)=[0 255 255];
+cmaps(2,:)=[255 0 0];
+labelpre =categorical("Helmet");
+while ~isDone(videoFReader)
+    I = videoFReader();
+
+    [bboxes, scores, labels] = detect(detector, I);
+    [~,ind] = ismember(labels,gTruth.LabelDefinitions.Name);
+    
+
+    if isempty(labels)  
+        detectedImg = I;
+    elseif ~(labelpre == labels(1))
+        detectedImg = I;
+        labelpre = labels(1); 
+    else
+        detectedImg = insertObjectAnnotation(I, 'Rectangle', bboxes(1,:), cellstr(labels(1)),...
+            'Color',im2single(cmaps(ind(1),:)),'FontSize',20,'TextBoxOpacity',1);
+        labelpre = labels(1); 
+    end
+    videoPlayer(detectedImg);
+    cntFrames = cntFrames + 1;
+end
+
+
+
+function dist = iouDistanceMetric(boxWidthHeight,allBoxWidthHeight)
+
+
+boxWidthHeight = prefixXYCoordinates(boxWidthHeight);
+allBoxWidthHeight = prefixXYCoordinates(allBoxWidthHeight);
+
+dist = 1 - bboxOverlapRatio(allBoxWidthHeight, boxWidthHeight);
+end
+
+function boxWidthHeight = prefixXYCoordinates(boxWidthHeight)
+
+n = size(boxWidthHeight,1);
+boxWidthHeight = [ones(n,2) boxWidthHeight];
+end
